@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MediatR" Version="13.0.0" />
+    <PackageReference Include="Oracle.ManagedDataAccess.Core" Version="23.9.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="9.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\src\Core\NCQ.Core.Application\NCQ.Core.Application.csproj" />
+    <ProjectReference Include="..\src\Infrastructures\NCQ.Infrastructure.Repositories\NCQ.Infrastructure.Repositories.csproj" />
+    <ProjectReference Include="..\src\Infrastructures\NCQ.Infrastructure.Shared\NCQ.Infrastructure.Shared.csproj" />
+    <ProjectReference Include="..\src\Shared\CoreLibs\CoreLibs.csproj" />
+    <ProjectReference Include="..\src\Shared\DbContext\DbContext.csproj" />
+  </ItemGroup>
+
+</Project>
