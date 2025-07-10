@@ -1,5 +1,6 @@
 import { useCallback } from "react";
 import { useTodoContext } from "../stores/TodoContext";
+import TodoService from "../services/TodoService";
 
 const useTodo = (apiBaseUrl) => {
   const {
@@ -15,48 +16,11 @@ const useTodo = (apiBaseUrl) => {
     deletedTasks,
   } = useTodoContext();
 
-  // const fetchTasks = async () => {
-  //   try {
-  //     const response = await fetch(
-  //       `${apiBaseUrl}/todo/api/v1/Todo/get-all-tasks`
-  //     );
-  //     const result = await response.json();
-  //     if (result.succeeded) {
-  //       setTasks(result.data || []);
-  //     } else {
-  //       showError(result.message || "Failed to fetch tasks");
-  //       setTasks([]);
-  //     }
-  //   } catch (err) {
-  //     showError("Error fetching tasks");
-  //     setTasks([]);
-  //   }
-  // };
-
-  // const fetchDeletedTasks = async () => {
-  //   try {
-  //     const response = await fetch(
-  //       `${apiBaseUrl}/todo/api/v1/Todo/get-all-tasks-deleted`
-  //     );
-  //     const result = await response.json();
-  //     if (result.succeeded) {
-  //       setDeletedTasks(result.data || []);
-  //     } else {
-  //       showError(result.message || "Failed to fetch deleted tasks");
-  //       setDeletedTasks([]);
-  //     }
-  //   } catch (err) {
-  //     showError("Error fetching deleted tasks");
-  //     setDeletedTasks([]);
-  //   }
-  // };
+  const todoService = TodoService(apiBaseUrl);
 
   const fetchTasks = useCallback(async () => {
     try {
-      const response = await fetch(
-        `${apiBaseUrl}/todo/api/v1/Todo/get-all-tasks`
-      );
-      const result = await response.json();
+      const result = await todoService.fetchTasks();
       if (result.succeeded) {
         setTasks(result.data || []);
         await handleCounterDeletedTasks();
@@ -68,14 +32,11 @@ const useTodo = (apiBaseUrl) => {
       showError("Error fetching tasks");
       setTasks([]);
     }
-  }, [setTasks]);
+  }, [setTasks, showError, todoService]);
 
   const fetchDeletedTasks = useCallback(async () => {
     try {
-      const response = await fetch(
-        `${apiBaseUrl}/todo/api/v1/Todo/get-all-tasks-deleted`
-      );
-      const result = await response.json();
+      const result = await todoService.fetchDeletedTasks();
       if (result.succeeded) {
         setDeletedTasks(result.data || []);
         await handleCounterDeletedTasks();
@@ -87,7 +48,7 @@ const useTodo = (apiBaseUrl) => {
       showError("Error fetching deleted tasks");
       setDeletedTasks([]);
     }
-  }, [setDeletedTasks]);
+  }, [setDeletedTasks, showError, todoService]);
 
   const handleSubmit = async () => {
     if (!newTask.title) {
@@ -95,15 +56,7 @@ const useTodo = (apiBaseUrl) => {
       return;
     }
     try {
-      const response = await fetch(
-        `${apiBaseUrl}/todo/api/v1/Todo/create-task`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(newTask),
-        }
-      );
-      const result = await response.json();
+      const result = await todoService.createTask(newTask);
       if (result.succeeded) {
         setNewTask({ title: "", description: "" });
         await fetchTasks();
@@ -126,15 +79,7 @@ const useTodo = (apiBaseUrl) => {
     }
     const payload = { ...editTaskData, havedone: 0 };
     try {
-      const response = await fetch(
-        `${apiBaseUrl}/todo/api/v1/Todo/update-task-by-id`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        }
-      );
-      const result = await response.json();
+      const result = await todoService.updateTask(payload);
       if (result.succeeded) {
         setEditTaskData(null);
         await fetchTasks();
@@ -150,15 +95,7 @@ const useTodo = (apiBaseUrl) => {
     const havedone = currentStatus ? 0 : 1;
     const payload = { id, havedone };
     try {
-      const response = await fetch(
-        `${apiBaseUrl}/todo/api/v1/Todo/update-task-by-id`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        }
-      );
-      const result = await response.json();
+      const result = await todoService.updateTask(payload);
       if (result.succeeded) {
         await fetchTasks();
       } else {
@@ -171,15 +108,7 @@ const useTodo = (apiBaseUrl) => {
 
   const deleteTask = async (id) => {
     try {
-      const response = await fetch(
-        `${apiBaseUrl}/todo/api/v1/Todo/delete-task-by-id`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ id }),
-        }
-      );
-      const result = await response.json();
+      const result = await todoService.deleteTask(id);
       if (result.succeeded) {
         await fetchTasks();
         await handleCounterDeletedTasks();
@@ -204,15 +133,7 @@ const useTodo = (apiBaseUrl) => {
     }
 
     try {
-      const response = await fetch(
-        `${apiBaseUrl}/todo/api/v1/Todo/delete-many-tasks`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ taskIds }),
-        }
-      );
-      const result = await response.json();
+      const result = await todoService.deleteManyTasks(taskIds);
       if (result.succeeded) {
         await fetchTasks();
         await handleCounterDeletedTasks();
@@ -227,15 +148,7 @@ const useTodo = (apiBaseUrl) => {
 
   const restoreTask = async (id) => {
     try {
-      const response = await fetch(
-        `${apiBaseUrl}/todo/api/v1/Todo/restore-tasks`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ taskIds: [id] }),
-        }
-      );
-      const result = await response.json();
+      const result = await todoService.restoreTasks([id]);
       if (result.succeeded) {
         await fetchDeletedTasks();
         await fetchTasks();
@@ -258,15 +171,7 @@ const useTodo = (apiBaseUrl) => {
     }
 
     try {
-      const response = await fetch(
-        `${apiBaseUrl}/todo/api/v1/Todo/restore-tasks`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ taskIds }),
-        }
-      );
-      const result = await response.json();
+      const result = await todoService.restoreTasks(taskIds);
       if (result.succeeded) {
         await fetchDeletedTasks();
         await fetchTasks();
@@ -280,15 +185,7 @@ const useTodo = (apiBaseUrl) => {
 
   const permanentDelete = async (id) => {
     try {
-      const response = await fetch(
-        `${apiBaseUrl}/todo/api/v1/Todo/delete-tasks-permanently`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ taskIds: [id] }),
-        }
-      );
-      const result = await response.json();
+      const result = await todoService.deleteTasksPermanently([id]);
       if (result.succeeded) {
         await fetchDeletedTasks();
       } else {
@@ -310,15 +207,7 @@ const useTodo = (apiBaseUrl) => {
     }
 
     try {
-      const response = await fetch(
-        `${apiBaseUrl}/todo/api/v1/Todo/delete-tasks-permanently`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ taskIds }),
-        }
-      );
-      const result = await response.json();
+      const result = await todoService.deleteTasksPermanently(taskIds);
       if (result.succeeded) {
         await fetchDeletedTasks();
       } else {
@@ -331,15 +220,7 @@ const useTodo = (apiBaseUrl) => {
 
   const handleCounterDeletedTasks = async () => {
     try {
-      const response = await fetch(
-        `${apiBaseUrl}/todo/api/v1/Todo/counter-deleted-tasks`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({}),
-        }
-      );
-      const result = await response.json();
+      const result = await todoService.counterDeletedTasks();
       if (result.succeeded) {
         setDeletedTasksCount(result.data.counter);
       } else {
@@ -348,7 +229,7 @@ const useTodo = (apiBaseUrl) => {
       }
     } catch (err) {
       showError("Error fetching deleted tasks");
-      setDeletedTasks(0);
+      setDeletedTasksCount(0);
     }
   };
 
