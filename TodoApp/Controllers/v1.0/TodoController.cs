@@ -168,5 +168,20 @@ namespace Todo_service.Controllers.v1._0
         {
             return StatusCode((int)HttpStatusCode.OK, await mediator.Send(query));
         }
+
+        /// <summary>
+        /// Author: QuyNC
+        /// CreateDate: 10/07/2025
+        /// Description: Đánh dấu hoàn thành nhiều task
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        [HttpPost("mark-complete-tasks")]
+        [ProducesResponseType(typeof(Response<int>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> MarkCompleteTasks([FromBody] MarkCompleteTasksCommandRequest command)
+        {
+            return StatusCode((int)HttpStatusCode.OK, await mediator.Send(command));
+        }
     }
 }

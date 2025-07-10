@@ -146,6 +146,30 @@ const useTodo = (apiBaseUrl) => {
     }
   };
 
+  const handleMarkCompleteSelected = async () => {
+    const checkboxes = document.querySelectorAll(".task-checkbox:checked");
+    const taskIds = Array.from(checkboxes)
+      .map((checkbox) => parseInt(checkbox.getAttribute("data-task-id")))
+      .filter((id) => !isNaN(id));
+
+    if (taskIds.length === 0) {
+      showError("No tasks selected");
+      return;
+    }
+
+    try {
+      const result = await todoService.markCompleteTasks(taskIds);
+      if (result.succeeded) {
+        await fetchTasks();
+        showError(`${result.data} tasks marked as complete`);
+      } else {
+        showError(result.message || "Failed to mark tasks as complete");
+      }
+    } catch (err) {
+      showError("Error marking tasks as complete");
+    }
+  };
+
   const restoreTask = async (id) => {
     try {
       const result = await todoService.restoreTasks([id]);
@@ -242,6 +266,7 @@ const useTodo = (apiBaseUrl) => {
     completeTask,
     deleteTask,
     handleDeleteSelected,
+    handleMarkCompleteSelected,
     restoreTask,
     handleRestoreAll,
     permanentDelete,

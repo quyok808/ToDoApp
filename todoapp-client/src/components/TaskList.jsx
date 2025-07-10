@@ -6,7 +6,13 @@ const API_BASE_URL = import.meta.env.VITE_APP_API_BASE_URL;
 
 const TaskList = () => {
   const { tasks } = useTodoContext();
-  const { deleteTask, completeTask, editTask } = useTodo(API_BASE_URL);
+  const {
+    deleteTask,
+    completeTask,
+    editTask,
+    handleDeleteSelected,
+    handleMarkCompleteSelected,
+  } = useTodo(API_BASE_URL);
 
   if (tasks.length === 0) {
     return <p className="text-gray-500">No tasks available</p>;
@@ -24,66 +30,87 @@ const TaskList = () => {
   };
 
   return (
-    <ul className="space-y-2">
-      {tasks.map((task) => (
-        <li
-          key={task.id}
-          data-task-id={task.id}
-          className={`relative flex justify-between items-center p-4 border-b ${
-            task.havedone ? "bg-green-100" : ""
-          }`}
-        >
-          {task.havedone === 1 && (
-            <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-30">
-              <span className="text-red-500 text-xl font-bold opacity-80 rotate-[-30deg]">
-                ĐÃ HOÀN THÀNH
-              </span>
-            </div>
-          )}
-          <div className="flex items-center space-x-2">
-            <input
-              type="checkbox"
-              className="task-checkbox"
-              data-task-id={task.id}
-            />
-            <div>
-              <h3 className="font-medium">{task.title}</h3>
-              <p className="text-gray-600">{task.description || ""}</p>
-              <p className="text-sm text-gray-500">
-                Created: {formatDate(task.createdat)}
-              </p>
-              <p className="text-sm text-gray-500">
-                Updated: {formatDate(task.updatedat)}
-              </p>
-            </div>
-          </div>
-          <div className="space-x-2">
-            {task.havedone === 0 && (
-              <button
-                onClick={() => editTask(task.id, task.title, task.description)}
-                className="text-blue-500 hover:underline"
-              >
-                Edit
-              </button>
+    <div>
+      <div className="flex justify-between items-center mb-4">
+        <div></div> {/* Placeholder for alignment */}
+        <div className="space-x-2">
+          <button
+            onClick={handleMarkCompleteSelected}
+            className="bg-green-500 text-white p-2 rounded hover:bg-green-600"
+          >
+            Mark Selected Complete
+          </button>
+          <button
+            onClick={handleDeleteSelected}
+            className="bg-red-500 text-white p-2 rounded hover:bg-red-600"
+          >
+            Delete Selected
+          </button>
+        </div>
+      </div>
+      <ul className="space-y-2">
+        {tasks.map((task) => (
+          <li
+            key={task.id}
+            data-task-id={task.id}
+            className={`relative flex justify-between items-center p-4 border-b ${
+              task.havedone ? "bg-green-100" : ""
+            }`}
+          >
+            {task.havedone === 1 && (
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-30">
+                <span className="text-red-500 text-xl font-bold opacity-80 rotate-[-30deg]">
+                  ĐÃ HOÀN THÀNH
+                </span>
+              </div>
             )}
-            <button
-              onClick={() => deleteTask(task.id)}
-              className="text-red-500 hover:underline"
-            >
-              Delete
-            </button>
-            <button
-              onClick={() => completeTask(task.id, task.havedone)}
-              className={`text-${
-                task.havedone ? "yellow" : "green"
-              }-500 hover:underline`}
-            >
-              {task.havedone ? "Undo" : "Complete"}
-            </button>
-          </div>
-        </li>
-      ))}
-    </ul>
+            <div className="flex items-center space-x-2">
+              <input
+                type="checkbox"
+                className="task-checkbox"
+                data-task-id={task.id}
+              />
+              <div>
+                <h3 className="font-medium">{task.title}</h3>
+                <p className="text-gray-600">{task.description || ""}</p>
+                <p className="text-sm text-gray-500">
+                  Created: {formatDate(task.createdat)}
+                </p>
+                <p className="text-sm text-gray-500">
+                  Updated: {formatDate(task.updatedat)}
+                </p>
+              </div>
+            </div>
+            <div className="space-x-2">
+              {task.havedone === 0 && (
+                <button
+                  onClick={() =>
+                    editTask(task.id, task.title, task.description)
+                  }
+                  className="text-blue-500 hover:underline"
+                >
+                  Edit
+                </button>
+              )}
+              <button
+                onClick={() => deleteTask(task.id)}
+                className="text-red-500 hover:underline"
+              >
+                Delete
+              </button>
+              <button
+                onClick={() => completeTask(task.id, task.havedone)}
+                className={`text-${
+                  task.havedone ? "yellow" : "green"
+                }-500 hover:underline`}
+              >
+                {task.havedone ? "Undo" : "Complete"}
+              </button>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 };
 

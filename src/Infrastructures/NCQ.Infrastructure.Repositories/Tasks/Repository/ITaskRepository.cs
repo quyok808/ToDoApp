@@ -3,6 +3,7 @@ using NCQ.Infrastructure.Repositories.Tasks.Models.DeleteTask;
 using NCQ.Infrastructure.Repositories.Tasks.Models.GetAllTasks;
 using NCQ.Infrastructure.Repositories.Tasks.Models.GetCounterDeleteTaskTemporary;
 using NCQ.Infrastructure.Repositories.Tasks.Models.GetTaskById;
+using NCQ.Infrastructure.Repositories.Tasks.Models.MarkCompleteTasks;
 using NCQ.Infrastructure.Repositories.Tasks.Models.RestoreTask;
 using NCQ.Infrastructure.Repositories.Tasks.Models.UpdateTask;
 
@@ -20,5 +21,6 @@ namespace NCQ.Infrastructure.Repositories.Tasks.Repository
         Task<DeleteTaskResponseModel> DeleteTasksPermanentlyAsync(DeleteManyTasksRequestModel request, CancellationToken cancellationToken = default);
         Task<RestoreTasksResponseModel> RestoreTaskAsync(RestoreTasksRequestModel request, CancellationToken cancellationToken = default);
         Task<GetCounterDeleteTaskTemporaryResponseModel> GetCounterDeleteTaskTemporaryAsync(CancellationToken cancellationToken = default);
+        Task<MarkCompletedTasksResponseModel> MarkCompletedTasksAsync(MarkCompletedTasksRequestModel request, CancellationToken cancellationToken = default);
     }
 }

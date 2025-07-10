@@ -94,6 +94,18 @@ const TodoService = (apiBaseUrl) => {
     return await response.json();
   };
 
+  const markCompleteTasks = async (taskIds) => {
+    const response = await fetch(
+      `${apiBaseUrl}/todo/api/v1/Todo/mark-complete-tasks`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ taskIds, havedone: 1 }),
+      }
+    );
+    return await response.json();
+  };
+
   return {
     fetchTasks,
     fetchDeletedTasks,
@@ -104,6 +116,7 @@ const TodoService = (apiBaseUrl) => {
     restoreTasks,
     deleteTasksPermanently,
     counterDeletedTasks,
+    markCompleteTasks,
   };
 };
 

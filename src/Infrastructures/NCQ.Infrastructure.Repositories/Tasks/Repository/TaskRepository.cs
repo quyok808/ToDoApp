@@ -10,6 +10,7 @@ using NCQ.Infrastructure.Repositories.Tasks.Models.DeleteTask;
 using NCQ.Infrastructure.Repositories.Tasks.Models.GetAllTasks;
 using NCQ.Infrastructure.Repositories.Tasks.Models.GetCounterDeleteTaskTemporary;
 using NCQ.Infrastructure.Repositories.Tasks.Models.GetTaskById;
+using NCQ.Infrastructure.Repositories.Tasks.Models.MarkCompleteTasks;
 using NCQ.Infrastructure.Repositories.Tasks.Models.RestoreTask;
 using NCQ.Infrastructure.Repositories.Tasks.Models.UpdateTask;
 using Oracle.ManagedDataAccess.Client;
@@ -328,6 +329,62 @@ namespace NCQ.Infrastructure.Repositories.Tasks.Repository
                     commandTimeout: ExecuteTimeout.Read,
                     commandType: CommandType.Text
                 );
+            }
+            finally
+            {
+                dbConnection.Close();
+            }
+        }
+
+        public async Task<MarkCompletedTasksResponseModel> MarkCompletedTasksAsync(MarkCompletedTasksRequestModel request, CancellationToken cancellationToken = default)
+        {
+            using IDbConnection dbConnection = connection.OracleConnection(connectionString);
+            dbConnection.Open();
+            using var transaction = dbConnection.BeginTransaction();
+
+            try
+            {
+                int totalMarked = 0;
+
+                foreach (var id in request.TaskIds)
+                {
+                    var parameters = new OracleDynamicParameters();
+                    parameters.Add("p_id", id);
+                    parameters.Add("p_havedone", request.HAVEDONE);
+                    var query = "UPDATE TASKS SET HAVEDONE = :p_havedone WHERE ID = :p_id";
+
+                    var result = await dbConnection.ExecuteAsync(
+                        sql: query,
+                        param: parameters,
+                        transaction: transaction,
+                        commandTimeout: ExecuteTimeout.Write,
+                        commandType: CommandType.Text
+                    );
+
+                    if (result == 0)
+                    {
+                        transaction.Rollback();
+                        return new MarkCompletedTasksResponseModel { Result = 0, Description = $"Không thể cập nhật task với ID = {id}" };
+                    }
+
+                    totalMarked += result;
+                }
+
+                transaction.Commit();
+                return new MarkCompletedTasksResponseModel
+                {
+                    Result = 1,
+                    Description = $"Cập nhật thành công {totalMarked} task"
+                };
+            }
+            catch (Exception ex)
+            {
+                transaction.Rollback();
+                return new MarkCompletedTasksResponseModel
+                {
+                    Result = 0,
+                    Description = $"Cập nhật thất bại: {ex.Message}"
+                };
             }
             finally
             {

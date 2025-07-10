@@ -16,6 +16,7 @@ const TodoAppContent = () => {
     fetchTasks,
     fetchDeletedTasks,
     handleDeleteSelected,
+    handleMarkCompleteSelected,
     handleRestoreAll,
     handlePermanentDeleteAll,
   } = useTodo(API_BASE_URL);
@@ -36,15 +37,7 @@ const TodoAppContent = () => {
       <Tabs />
       {currentTab === "tasks" ? (
         <div className="bg-white p-6 rounded-lg shadow-md">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-semibold">Tasks</h2>
-            <button
-              onClick={handleDeleteSelected}
-              className="bg-red-500 text-white p-2 rounded hover:bg-red-600"
-            >
-              Delete Selected
-            </button>
-          </div>
+          <h2 className="text-xl font-semibold mb-4">Tasks</h2>
           <TaskList />
         </div>
       ) : (
