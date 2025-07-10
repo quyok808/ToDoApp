@@ -1,5 +1,5 @@
 import React from "react";
-import { TodoProvider, useTodoContext } from "./context/TodoContext";
+import { TodoProvider, useTodoContext } from "./stores/TodoContext";
 import useTodo from "./hook/useTodo";
 
 const API_BASE_URL = import.meta.env.VITE_APP_API_BASE_URL;

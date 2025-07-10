@@ -1,9 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
+  <!-- Signed by Quy - 2025-07-10 -->
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+	<Authors>Nguyen Cong Quy (QuyNC)</Authors>
   </PropertyGroup>
 
   <ItemGroup>
