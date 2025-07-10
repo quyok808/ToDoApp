@@ -1,6 +1,7 @@
 ﻿using NCQ.Core.Application;
 using NCQ.Infrastructure.Repositories;
 using NCQ.Infrastructure.Shared;
+using NCQ.Core.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.WebHost.UseDefaultServiceProvider((_, options) => options.ValidateScopes = true);
@@ -11,16 +12,7 @@ var configuration = builder.Configuration;
 var hostEnvironment = builder.Environment;
 
 services.AddHttpContextAccessor();
-services.AddCors(options =>
-{
-	options.AddPolicy("AllowAll", policy =>
-	{
-		policy.AllowAnyOrigin()
-			  .AllowAnyMethod()
-			  .AllowAnyHeader();
-	});
-});
-
+services.AddCoreMiddleware();
 services.AddControllers();
 services.AddRegisterSharedServices(configuration);
 

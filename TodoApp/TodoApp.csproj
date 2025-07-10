@@ -14,6 +14,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\src\Core\NCQ.Core.Application\NCQ.Core.Application.csproj" />
+    <ProjectReference Include="..\src\Core\NCQ.Core.Middleware\NCQ.Core.Middleware.csproj" />
     <ProjectReference Include="..\src\Infrastructures\NCQ.Infrastructure.Repositories\NCQ.Infrastructure.Repositories.csproj" />
     <ProjectReference Include="..\src\Infrastructures\NCQ.Infrastructure.Shared\NCQ.Infrastructure.Shared.csproj" />
     <ProjectReference Include="..\src\Shared\CoreLibs\CoreLibs.csproj" />
