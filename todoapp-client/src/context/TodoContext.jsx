@@ -5,6 +5,7 @@ const TodoContext = createContext();
 const TodoProvider = ({ children }) => {
   const [tasks, setTasks] = useState([]);
   const [deletedTasks, setDeletedTasks] = useState([]);
+  const [DeletedTasksCount, setDeletedTasksCount] = useState(0);
   const [error, setError] = useState("");
   const [currentTab, setCurrentTab] = useState("tasks");
   const [newTask, setNewTask] = useState({ title: "", description: "" });
@@ -26,6 +27,8 @@ const TodoProvider = ({ children }) => {
         setTasks,
         deletedTasks,
         setDeletedTasks,
+        DeletedTasksCount,
+        setDeletedTasksCount,
         error,
         showError,
         currentTab,
@@ -34,7 +37,7 @@ const TodoProvider = ({ children }) => {
         setNewTask,
         editTaskData,
         setEditTaskData,
-        closeModal
+        closeModal,
       }}
     >
       {children}

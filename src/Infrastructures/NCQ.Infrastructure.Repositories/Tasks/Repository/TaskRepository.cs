@@ -8,6 +8,7 @@ using NCQ.Infrastructure.Repositories.Configuration;
 using NCQ.Infrastructure.Repositories.Tasks.Models.CreateTask;
 using NCQ.Infrastructure.Repositories.Tasks.Models.DeleteTask;
 using NCQ.Infrastructure.Repositories.Tasks.Models.GetAllTasks;
+using NCQ.Infrastructure.Repositories.Tasks.Models.GetCounterDeleteTaskTemporary;
 using NCQ.Infrastructure.Repositories.Tasks.Models.GetTaskById;
 using NCQ.Infrastructure.Repositories.Tasks.Models.RestoreTask;
 using NCQ.Infrastructure.Repositories.Tasks.Models.UpdateTask;
@@ -290,6 +291,27 @@ namespace NCQ.Infrastructure.Repositories.Tasks.Repository
             }
         }
 
+        public async Task<GetCounterDeleteTaskTemporaryResponseModel> GetCounterDeleteTaskTemporaryAsync(CancellationToken cancellationToken = default)
+        {
+            using IDbConnection dbConnection = connection.OracleConnection(connectionString);
+            dbConnection.Open();
+            try
+            {
+                var query = @"SELECT COUNT(ID) AS COUNTER FROM TASKS WHERE ENABLE = 0";
+                return await dbConnection.QueryFirstOrDefaultAsync<GetCounterDeleteTaskTemporaryResponseModel>(
+                    sql: query,
+                    param: null,
+                    transaction: null,
+                    commandTimeout: ExecuteTimeout.Read,
+                    commandType: CommandType.Text
+                );
+            }
+            finally
+            {
+                dbConnection.Close();
+            }
+        }
+
         public async Task<GetTaskByIdResponseModel> GetTaskById(GetTaskByIdRequestModel request, CancellationToken cancellationToken = default)
         {
             using IDbConnection dbConnection = connection.OracleConnection(connectionString);
@@ -363,7 +385,6 @@ namespace NCQ.Infrastructure.Repositories.Tasks.Repository
                 dbConnection.Close();
             }
         }
-
 
         public async Task<UpdateTaskResponseModel> UpdateTask(int Id, UpdateTaskRequestModel request, CancellationToken cancellationToken = default)
         {

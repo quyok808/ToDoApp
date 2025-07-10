@@ -153,5 +153,20 @@ namespace Todo_service.Controllers.v1._0
         {
             return StatusCode((int)HttpStatusCode.OK, await mediator.Send(command));
         }
+
+        /// <summary>
+        /// Author: QuyNC
+        /// CreateDate: 10/07/2025
+        /// Description: Đếm số lượng task đã xoá tạm thời
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        [HttpPost("counter-deleted-tasks")]
+        [ProducesResponseType(typeof(Response<int>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> CounterDeletedTasks([FromBody] GetCounterOfDeleteTasksQueryRequest query)
+        {
+            return StatusCode((int)HttpStatusCode.OK, await mediator.Send(query));
+        }
     }
 }

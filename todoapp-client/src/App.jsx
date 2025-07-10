@@ -53,7 +53,7 @@ const TaskForm = () => {
 };
 
 const Tabs = () => {
-  const { currentTab, setCurrentTab } = useTodoContext();
+  const { currentTab, setCurrentTab, DeletedTasksCount } = useTodoContext();
 
   return (
     <div className="mb-4">
@@ -76,7 +76,10 @@ const Tabs = () => {
               : "text-gray-500 hover:text-blue-500"
           }`}
         >
-          Trash
+          Trash{" "}
+          {DeletedTasksCount > 0 && (
+            <span className="text-red-500">({DeletedTasksCount})</span>
+          )}
         </button>
       </div>
     </div>
@@ -98,7 +101,7 @@ const TaskList = () => {
       month: "short",
       day: "numeric",
       hour: "2-digit",
-      minute: "2-digit"
+      minute: "2-digit",
     });
   };
 
@@ -108,10 +111,17 @@ const TaskList = () => {
         <li
           key={task.id}
           data-task-id={task.id}
-          className={`flex justify-between items-center p-4 border-b ${
+          className={`relative flex justify-between items-center p-4 border-b ${
             task.havedone ? "bg-green-100" : ""
           }`}
         >
+          {task.havedone === 1 && (
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-30">
+              <span className="text-red-500 text-xl font-bold opacity-80 rotate-[-30deg]">
+                ĐÃ HOÀN THÀNH
+              </span>
+            </div>
+          )}
           <div className="flex items-center space-x-2">
             <input
               type="checkbox"
@@ -130,12 +140,14 @@ const TaskList = () => {
             </div>
           </div>
           <div className="space-x-2">
-            <button
-              onClick={() => editTask(task.id, task.title, task.description)}
-              className="text-blue-500 hover:underline"
-            >
-              Edit
-            </button>
+            {task.havedone === 0 && (
+              <button
+                onClick={() => editTask(task.id, task.title, task.description)}
+                className="text-blue-500 hover:underline"
+              >
+                Edit
+              </button>
+            )}
             <button
               onClick={() => deleteTask(task.id)}
               className="text-red-500 hover:underline"
@@ -172,7 +184,7 @@ const TrashList = () => {
       month: "short",
       day: "numeric",
       hour: "2-digit",
-      minute: "2-digit"
+      minute: "2-digit",
     });
   };
 
@@ -271,7 +283,7 @@ const TodoAppContent = () => {
     fetchDeletedTasks,
     handleDeleteSelected,
     handleRestoreAll,
-    handlePermanentDeleteAll
+    handlePermanentDeleteAll,
   } = useTodo(API_BASE_URL);
 
   React.useEffect(() => {

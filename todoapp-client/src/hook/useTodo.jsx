@@ -1,19 +1,57 @@
+import { useCallback } from "react";
 import { useTodoContext } from "../context/TodoContext";
 
 const useTodo = (apiBaseUrl) => {
   const {
     setTasks,
     setDeletedTasks,
+    setDeletedTasksCount,
     showError,
     newTask,
     setNewTask,
     editTaskData,
     setEditTaskData,
     currentTab,
-    deletedTasks
+    deletedTasks,
   } = useTodoContext();
 
-  const fetchTasks = async () => {
+  // const fetchTasks = async () => {
+  //   try {
+  //     const response = await fetch(
+  //       `${apiBaseUrl}/todo/api/v1/Todo/get-all-tasks`
+  //     );
+  //     const result = await response.json();
+  //     if (result.succeeded) {
+  //       setTasks(result.data || []);
+  //     } else {
+  //       showError(result.message || "Failed to fetch tasks");
+  //       setTasks([]);
+  //     }
+  //   } catch (err) {
+  //     showError("Error fetching tasks");
+  //     setTasks([]);
+  //   }
+  // };
+
+  // const fetchDeletedTasks = async () => {
+  //   try {
+  //     const response = await fetch(
+  //       `${apiBaseUrl}/todo/api/v1/Todo/get-all-tasks-deleted`
+  //     );
+  //     const result = await response.json();
+  //     if (result.succeeded) {
+  //       setDeletedTasks(result.data || []);
+  //     } else {
+  //       showError(result.message || "Failed to fetch deleted tasks");
+  //       setDeletedTasks([]);
+  //     }
+  //   } catch (err) {
+  //     showError("Error fetching deleted tasks");
+  //     setDeletedTasks([]);
+  //   }
+  // };
+
+  const fetchTasks = useCallback(async () => {
     try {
       const response = await fetch(
         `${apiBaseUrl}/todo/api/v1/Todo/get-all-tasks`
@@ -21,6 +59,7 @@ const useTodo = (apiBaseUrl) => {
       const result = await response.json();
       if (result.succeeded) {
         setTasks(result.data || []);
+        await handleCounterDeletedTasks();
       } else {
         showError(result.message || "Failed to fetch tasks");
         setTasks([]);
@@ -29,9 +68,9 @@ const useTodo = (apiBaseUrl) => {
       showError("Error fetching tasks");
       setTasks([]);
     }
-  };
+  }, [setTasks]);
 
-  const fetchDeletedTasks = async () => {
+  const fetchDeletedTasks = useCallback(async () => {
     try {
       const response = await fetch(
         `${apiBaseUrl}/todo/api/v1/Todo/get-all-tasks-deleted`
@@ -39,6 +78,7 @@ const useTodo = (apiBaseUrl) => {
       const result = await response.json();
       if (result.succeeded) {
         setDeletedTasks(result.data || []);
+        await handleCounterDeletedTasks();
       } else {
         showError(result.message || "Failed to fetch deleted tasks");
         setDeletedTasks([]);
@@ -47,7 +87,7 @@ const useTodo = (apiBaseUrl) => {
       showError("Error fetching deleted tasks");
       setDeletedTasks([]);
     }
-  };
+  }, [setDeletedTasks]);
 
   const handleSubmit = async () => {
     if (!newTask.title) {
@@ -60,7 +100,7 @@ const useTodo = (apiBaseUrl) => {
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(newTask)
+          body: JSON.stringify(newTask),
         }
       );
       const result = await response.json();
@@ -91,7 +131,7 @@ const useTodo = (apiBaseUrl) => {
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload)
+          body: JSON.stringify(payload),
         }
       );
       const result = await response.json();
@@ -115,7 +155,7 @@ const useTodo = (apiBaseUrl) => {
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload)
+          body: JSON.stringify(payload),
         }
       );
       const result = await response.json();
@@ -136,12 +176,13 @@ const useTodo = (apiBaseUrl) => {
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ id })
+          body: JSON.stringify({ id }),
         }
       );
       const result = await response.json();
       if (result.succeeded) {
         await fetchTasks();
+        await handleCounterDeletedTasks();
         if (currentTab === "trash") await fetchDeletedTasks();
       } else {
         showError(result.message || "Failed to delete task");
@@ -168,12 +209,13 @@ const useTodo = (apiBaseUrl) => {
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ taskIds })
+          body: JSON.stringify({ taskIds }),
         }
       );
       const result = await response.json();
       if (result.succeeded) {
         await fetchTasks();
+        await handleCounterDeletedTasks();
         if (currentTab === "trash") await fetchDeletedTasks();
       } else {
         showError(result.message || "Failed to delete selected tasks");
@@ -190,7 +232,7 @@ const useTodo = (apiBaseUrl) => {
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ taskIds: [id] })
+          body: JSON.stringify({ taskIds: [id] }),
         }
       );
       const result = await response.json();
@@ -221,7 +263,7 @@ const useTodo = (apiBaseUrl) => {
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ taskIds })
+          body: JSON.stringify({ taskIds }),
         }
       );
       const result = await response.json();
@@ -243,7 +285,7 @@ const useTodo = (apiBaseUrl) => {
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ taskIds: [id] })
+          body: JSON.stringify({ taskIds: [id] }),
         }
       );
       const result = await response.json();
@@ -273,7 +315,7 @@ const useTodo = (apiBaseUrl) => {
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ taskIds })
+          body: JSON.stringify({ taskIds }),
         }
       );
       const result = await response.json();
@@ -284,6 +326,29 @@ const useTodo = (apiBaseUrl) => {
       }
     } catch (err) {
       showError("Error permanently deleting tasks");
+    }
+  };
+
+  const handleCounterDeletedTasks = async () => {
+    try {
+      const response = await fetch(
+        `${apiBaseUrl}/todo/api/v1/Todo/counter-deleted-tasks`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({}),
+        }
+      );
+      const result = await response.json();
+      if (result.succeeded) {
+        setDeletedTasksCount(result.data.counter);
+      } else {
+        showError(result.message || "Failed to fetch deleted tasks");
+        setDeletedTasksCount(0);
+      }
+    } catch (err) {
+      showError("Error fetching deleted tasks");
+      setDeletedTasks(0);
     }
   };
 
@@ -299,7 +364,7 @@ const useTodo = (apiBaseUrl) => {
     restoreTask,
     handleRestoreAll,
     permanentDelete,
-    handlePermanentDeleteAll
+    handlePermanentDeleteAll,
   };
 };
 
