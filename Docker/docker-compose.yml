@@ -1,0 +1,41 @@
+services:
+  oracle-db:
+    image: gvenzl/oracle-xe:21-slim
+    container_name: oracle
+    environment:
+      - ORACLE_PASSWORD=Aa_11111
+      - APP_USER=TSK
+      - APP_USER_PASSWORD=123
+    ports:
+      - "1522:1521"
+    volumes:
+      - oracle-data:/opt/oracle/oradata
+      - ./image/oracle-init/init.sql:/container-entrypoint-initdb.d/init.sql
+
+  webapi:
+    build:
+      context: ..
+      dockerfile: Docker/Dockerfile
+    container_name: todo-api
+    ports:
+      - "5001:5001"
+    environment:
+      - ConnectionStrings__PLSQLServerEquipmentServiceConnection=User Id=TSK;Password=123;Data Source=oracle:1521/XEPDB1;
+    depends_on:
+      - oracle-db
+
+  frontend:
+    build:  
+      context: ../todoapp-client
+      dockerfile: Dockerfile
+      args:
+        VITE_APP_API_BASE_URL: http://localhost:5001
+    container_name: todo-client
+    ports:
+      - "5173:5173"
+    environment:
+        - VITE_APP_API_BASE_URL=http://localhost:5001
+    depends_on:
+        - webapi
+volumes:
+  oracle-data:
